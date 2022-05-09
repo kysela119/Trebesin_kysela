@@ -1,0 +1,107 @@
+-- Database generated with pgModeler (PostgreSQL Database Modeler).
+-- pgModeler  version: 0.9.3
+-- PostgreSQL version: 13.0
+-- Project Site: pgmodeler.io
+-- Model Author: ---
+
+-- Database creation must be performed outside a multi lined SQL file. 
+-- These commands were put in this file only as a convenience.
+-- 
+-- object: new_database | type: DATABASE --
+-- DROP DATABASE IF EXISTS new_database;
+CREATE DATABASE new_database;
+-- ddl-end --
+
+
+-- object: public."informace_o_voliči" | type: TABLE --
+-- DROP TABLE IF EXISTS public."informace_o_voliči" CASCADE;
+CREATE TABLE public."informace_o_voliči" (
+	"jméno" varchar(40),
+	"přijmení" varchar(40),
+	"Datum narození" varchar(100),
+	"Rodiný status" varchar(30),
+	"Trvalý pobyt" varchar(100),
+	"čislo_občanky" varchar(11),
+	"telefoní_číslo" varchar(8),
+	email varchar(60),
+	"pol_strany_Strany" smallint
+);
+-- ddl-end --
+ALTER TABLE public."informace_o_voliči" OWNER TO postgres;
+-- ddl-end --
+
+
+strany: enum('ODS', 'TOP_09', 'KDU-ČSL', 'Piráti', 'Starostové_a_Nezavyslí', 'ANO', 'SPD', 'KSČM')
+	CONSTRAINT "Strany_pk" PRIMARY KEY (pol_strany)
+
+);
+-- ddl-end --
+ALTER TABLE public."Strany" OWNER TO postgres;
+-- ddl-end --
+
+-- object: "Strany_fk" | type: CONSTRAINT --
+-- ALTER TABLE public."informace_o_voliči" DROP CONSTRAINT IF EXISTS "Strany_fk" CASCADE;
+ALTER TABLE public."informace_o_voliči" ADD CONSTRAINT "Strany_fk" FOREIGN KEY ("pol_strany_Strany")
+REFERENCES public."Strany" (pol_strany) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+kraje : enum('Praha', 'Středočeský', 'Jihočeský', 'Plzeňský', 'Karlovarský', 'Ustecký', 'Liberecký', 'Královéhradecký', 'Pardubický', 'Vysočina', 'Jihomoravský', 'Olomoucký', 'Zlinský', 'Moravskoslezský')
+	kraje_soucet  varchar(8) primary key
+
+);
+-- ddl-end --
+ALTER TABLE public."Kraje" OWNER TO postgres;
+-- ddl-end --
+
+-- object: public."počet_voliču" | type: TABLE --
+-- DROP TABLE IF EXISTS public."počet_voliču" CASCADE;
+CREATE TABLE public."počet_voliču" (
+	"počet_voličů" smallint NOT NULL,
+	"učast" varchar(9),
+	CONSTRAINT "počet_voliču_pk" PRIMARY KEY ("počet_voličů")
+
+);
+-- ddl-end --
+ALTER TABLE public."počet_voliču" OWNER TO postgres;
+-- ddl-end --
+
+-- object: public."vitězné_strany_v_jednotlivych_krajich" | type: TABLE --
+-- DROP TABLE IF EXISTS public."vitězné_strany_v_jednotlivych_krajich" CASCADE;
+CREATE TABLE public."vitězné_strany_v_jednotlivych_krajich" (
+	vitezna_strana smallint NOT NULL,
+	"počet_voličů_počet_voliču" smallint,
+	CONSTRAINT "vitězné_strany_v_jednotlivych_krajich_pk" PRIMARY KEY (vitezna_strana)
+
+);
+-- ddl-end --
+ALTER TABLE public."vitězné_strany_v_jednotlivych_krajich" OWNER TO postgres;
+-- ddl-end --
+
+-- object: "vitězné_strany_v_jednotlivych_krajich_fk" | type: CONSTRAINT --
+-- ALTER TABLE public."Strany" DROP CONSTRAINT IF EXISTS "vitězné_strany_v_jednotlivych_krajich_fk" CASCADE;
+ALTER TABLE public."Strany" ADD CONSTRAINT "vitězné_strany_v_jednotlivych_krajich_fk" FOREIGN KEY ("vitezna_strana_vitězné_strany_v_jednotlivych_krajich")
+REFERENCES public."vitězné_strany_v_jednotlivych_krajich" (vitezna_strana) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: "vitězné_strany_v_jednotlivych_krajich_fk" | type: CONSTRAINT --
+-- ALTER TABLE public."Kraje" DROP CONSTRAINT IF EXISTS "vitězné_strany_v_jednotlivych_krajich_fk" CASCADE;
+ALTER TABLE public."Kraje" ADD CONSTRAINT "vitězné_strany_v_jednotlivych_krajich_fk" FOREIGN KEY ("vitezna_strana_vitězné_strany_v_jednotlivych_krajich")
+REFERENCES public."vitězné_strany_v_jednotlivych_krajich" (vitezna_strana) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: "počet_voliču_fk" | type: CONSTRAINT --
+-- ALTER TABLE public."vitězné_strany_v_jednotlivych_krajich" DROP CONSTRAINT IF EXISTS "počet_voliču_fk" CASCADE;
+ALTER TABLE public."vitězné_strany_v_jednotlivych_krajich" ADD CONSTRAINT "počet_voliču_fk" FOREIGN KEY ("počet_voličů_počet_voliču")
+REFERENCES public."počet_voliču" ("počet_voličů") MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: "vitězné_strany_v_jednotlivych_krajich_uq" | type: CONSTRAINT --
+-- ALTER TABLE public."vitězné_strany_v_jednotlivych_krajich" DROP CONSTRAINT IF EXISTS "vitězné_strany_v_jednotlivych_krajich_uq" CASCADE;
+ALTER TABLE public."vitězné_strany_v_jednotlivych_krajich" ADD CONSTRAINT "vitězné_strany_v_jednotlivych_krajich_uq" UNIQUE ("počet_voličů_počet_voliču");
+-- ddl-end --
+
+
